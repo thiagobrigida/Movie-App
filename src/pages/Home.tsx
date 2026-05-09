@@ -22,6 +22,7 @@ const Home: React.FC = () => {
   const [loading, setLoading] = useState(true);            // Feedback visual de carregamento [cite: 50]
   const [isModalOpen, setIsModalOpen] = useState(false);   // Controle do Modal de CRUD
   const [movieToEdit, setMovieToEdit] = useState<Movie | null>(null); // Estado para o Update
+  const [searchTerm, setSearchTerm] = useState('Marvel'); // 'Marvel' ainda é o padrão inicial
 
   const navigate = useNavigate();
 
@@ -106,6 +107,23 @@ const Home: React.FC = () => {
     navigate('/login');
   };
 
+  const handleSearch = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+  try {
+    const response = await api.get(`?s=${searchTerm}&apikey=${API_KEY}`);
+    if (response.data.Search) {
+      setApiMovies(response.data.Search);
+    } else {
+      alert("Nenhum filme encontrado!");
+    }
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setLoading(false);
+  }
+  };
+
   // Combinação dos dados para exibição (Read completo) [cite: 25]
   const allMovies = [...myMovies, ...apiMovies];
 
@@ -113,7 +131,6 @@ const Home: React.FC = () => {
 
   return (
     <div style={containerStyle}>
-      {/* Cabeçalho Reutilizável [cite: 72] */}
       <header style={headerStyle}>
         <h1 style={{ color: '#E50914' }}>🎥 MovieChallenge</h1>
         <div style={{ display: 'flex', gap: '10px' }}>
@@ -122,38 +139,58 @@ const Home: React.FC = () => {
         </div>
       </header>
 
-      {/* Grid Responsivo: Mobile, Tablet e Desktop  */}
-      <div style={gridStyle}>
-        {allMovies.map((movie) => (
-          <div key={movie.imdbID} style={cardStyle}>
-            <img 
-              src={movie.Poster !== 'N/A' ? movie.Poster : 'https://via.placeholder.com/300x450'} 
-              alt={movie.Title} 
-              style={imageStyle} 
-            />
-            <div style={{ padding: '12px' }}>
-              <h3 style={titleStyle}>{movie.Title}</h3>
-              <p style={{ color: '#aaa', fontSize: '12px' }}>{movie.Year}</p>
-              
-              {/* Opções de Manipulação Dinâmica para itens criados [cite: 24] */}
-              {movie.isCustom && (
-                <div style={actionsStyle}>
-                  <button onClick={() => openEditModal(movie)} style={editButtonStyle}>Editar</button>
-                  <button onClick={() => handleDeleteMovie(movie.imdbID)} style={deleteButtonStyle}>Excluir</button>
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Modal de Formulário: Reutilizado para Create e Update [cite: 29] */}
-      {isModalOpen && (
-        <AddMovieModal 
-          onAdd={handleSaveMovie} 
-          onClose={closeModal} 
-          movieToEdit={movieToEdit} 
+      {/* SEÇÃO 1: BARRA DE BUSCA */}
+      <form onSubmit={handleSearch} style={{ marginBottom: '40px', display: 'flex', gap: '10px' }}>
+        <input 
+          type="text" 
+          placeholder="Pesquisar filmes na API..." 
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={searchInputStyle}
         />
+        <button type="submit" style={addButtonStyle}>Buscar na Nuvem</button>
+      </form>
+
+      {/* SEÇÃO 2: MEUS FILMES (LocalStorage) */}
+      {myMovies.length > 0 && (
+        <section style={{ marginBottom: '50px' }}>
+          <h2 style={sectionTitleStyle}>Meus Filmes</h2>
+          <div style={gridStyle}>
+            {myMovies.map((movie) => (
+              <div key={movie.imdbID} style={{ ...cardStyle, border: '1px solid #E50914' }}> 
+                <img src={movie.Poster} alt={movie.Title} style={imageStyle} />
+                <div style={{ padding: '12px' }}>
+                  <h3 style={titleStyle}>{movie.Title}</h3>
+                  <p style={{ color: '#aaa', fontSize: '12px' }}>{movie.Year}</p>
+                  <div style={actionsStyle}>
+                    <button onClick={() => openEditModal(movie)} style={editButtonStyle}>Editar</button>
+                    <button onClick={() => handleDeleteMovie(movie.imdbID)} style={deleteButtonStyle}>Excluir</button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* SEÇÃO 3: RESULTADOS DA API */}
+      <section>
+        <h2 style={sectionTitleStyle}>Resultados da OMDb</h2>
+        <div style={gridStyle}>
+          {apiMovies.map((movie) => (
+            <div key={movie.imdbID} style={cardStyle}>
+              <img src={movie.Poster !== 'N/A' ? movie.Poster : 'https://via.placeholder.com/300x450'} alt={movie.Title} style={imageStyle} />
+              <div style={{ padding: '12px' }}>
+                <h3 style={titleStyle}>{movie.Title}</h3>
+                <p style={{ color: '#aaa', fontSize: '12px' }}>{movie.Year}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {isModalOpen && (
+        <AddMovieModal onAdd={handleSaveMovie} onClose={closeModal} movieToEdit={movieToEdit} />
       )}
     </div>
   );
@@ -163,15 +200,47 @@ const Home: React.FC = () => {
 const containerStyle: React.CSSProperties = { padding: '20px', maxWidth: '1200px', margin: '0 auto', minHeight: '100vh' };
 const headerStyle: React.CSSProperties = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px', flexWrap: 'wrap', gap: '20px' };
 const gridStyle: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '25px' };
-const cardStyle: React.CSSProperties = { background: '#1f1f1f', borderRadius: '12px', overflow: 'hidden', transition: 'transform 0.2s' };
+const cardStyle: React.CSSProperties = {
+  background: '#1a1a1a',
+  borderRadius: '12px',
+  overflow: 'hidden',
+  transition: 'transform 0.2s ease', // Efeito suave
+  border: '1px solid #333'
+};
+
+const addButtonStyle = {
+  padding: '12px 24px',
+  backgroundColor: '#E50914',
+  color: 'white',
+  border: 'none',
+  borderRadius: '8px',
+  fontWeight: 'bold' as const,
+  boxShadow: '0 4px 14px rgba(229, 9, 20, 0.4)'
+};
 const imageStyle: React.CSSProperties = { width: '100%', height: '300px', objectFit: 'cover' };
 const titleStyle: React.CSSProperties = { fontSize: '16px', color: 'white', margin: '8px 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' };
 const actionsStyle: React.CSSProperties = { display: 'flex', gap: '8px', marginTop: '12px' };
 const centerStyle: React.CSSProperties = { color: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' };
-
-const addButtonStyle = { padding: '10px 20px', background: '#E50914', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' };
+const searchInputStyle = {
+  flex: 1,
+  padding: '12px',
+  borderRadius: '8px',
+  border: '1px solid #333',
+  background: '#1a1a1a',
+  color: '#fff',
+  fontSize: '16px',
+  outline: 'none'
+};
 const logoutButtonStyle = { padding: '10px', background: 'transparent', color: '#ccc', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer' };
 const editButtonStyle = { flex: 1, padding: '6px', background: '#333', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' };
 const deleteButtonStyle = { flex: 1, padding: '6px', background: 'transparent', color: '#ff4d4d', border: '1px solid #ff4d4d', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' };
+const sectionTitleStyle: React.CSSProperties = {
+  color: '#fff',
+  fontSize: '22px',
+  marginBottom: '20px',
+  paddingLeft: '5px',
+  borderLeft: '4px solid #E50914', // Um detalhe elegante no início do título
+  lineHeight: '1.2'
+};
 
 export default Home;

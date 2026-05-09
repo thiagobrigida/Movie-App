@@ -5,7 +5,6 @@ const api = axios.create({
   baseURL: 'https://www.omdbapi.com/',
 });
 
-// Substitua pelo valor da chave que você recebeu por e-mail
 export const API_KEY = '75709455'; 
 
 export default api;

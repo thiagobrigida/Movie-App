@@ -1,15 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+:root {
+  --primary: #E50914;      /* Vermelho vibrante */
+  --background: #0a0a0a;  /* Fundo quase preto */
+  --surface: #1a1a1a;     /* Cinza para os cards */
+  --text: #ffffff;
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Inter', sans-serif;
 }
 
 body {
-  background-color: #121212;
-  color: #ffffff;
+  background-color: var(--background);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
 }
 
 button {
   cursor: pointer;
+  font-family: 'Inter', sans-serif;
 }
