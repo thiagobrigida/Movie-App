@@ -124,8 +124,27 @@ const Home: React.FC = () => {
   }
   };
 
-  // Combinação dos dados para exibição (Read completo) [cite: 25]
-  const allMovies = [...myMovies, ...apiMovies];
+  /**
+ * Importa um filme da API para a Coleção Pessoal
+ * @param apiMovie Objeto do filme vindo da OMDb
+ */
+  const handleImportMovie = (apiMovie: Movie) => {
+  // Verifica se o filme já existe na coleção para não duplicar
+  const alreadyExists = myMovies.find(m => m.imdbID === apiMovie.imdbID);
+  if (alreadyExists) {
+    alert("Este filme já está na sua coleção!");
+    return;
+  }
+  // Cria a cópia com a flag 'isCustom' para permitir edição/exclusão depois
+  const movieToImport = {
+    ...apiMovie,
+    isCustom: true
+  };
+  const updatedList = [movieToImport, ...myMovies];
+  setMyMovies(updatedList);
+  localStorage.setItem('@MyMovies', JSON.stringify(updatedList));
+  alert(`${apiMovie.Title} foi adicionado à sua coleção! ⭐`);
+};
 
   if (loading) return <div style={centerStyle}>Carregando catálogo...</div>;
 
@@ -158,7 +177,33 @@ const Home: React.FC = () => {
           <div style={gridStyle}>
             {myMovies.map((movie) => (
               <div key={movie.imdbID} style={{ ...cardStyle, border: '1px solid #E50914' }}> 
-                <img src={movie.Poster} alt={movie.Title} style={imageStyle} />
+                
+                {/* BLOCO DA IMAGEM / PLACEHOLDER */}
+                <div style={{ position: 'relative', width: '100%', aspectRatio: '2/3', background: '#1a1a1a', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
+                  {/* Criamos um estado local ou usamos uma técnica de 'target' para esconder a imagem 
+                      se ela falhar, mostrando o placeholder que está por baixo.
+                  */}
+                  {movie.Poster && movie.Poster !== 'N/A' ? (
+                    <img 
+                      src={movie.Poster} 
+                      alt={movie.Title} 
+                      style={{ ...imageStyle, display: 'block', position: 'absolute', top: 0, left: 0, zIndex: 2 }} 
+                      onError={(e) => { 
+                        // Se a imagem falhar, nós a escondemos
+                        (e.target as HTMLImageElement).style.display = 'none'; 
+                      }}
+                    />
+                  ) : null}
+
+                  {/* Este bloco fica SEMPRE por baixo. Se a imagem acima sumir ou não existir, ele aparece */}
+                  <div style={{ textAlign: 'center', padding: '10px', zIndex: 1 }}>
+                    <span style={{ fontSize: '40px', display: 'block', marginBottom: '10px' }}>🎬</span>
+                    <p style={{ fontSize: '12px', color: '#666', fontWeight: 'bold', textTransform: 'uppercase' }}>
+                      Cartaz Indisponível
+                    </p>
+                  </div>
+                </div>
+
                 <div style={{ padding: '12px' }}>
                   <h3 style={titleStyle}>{movie.Title}</h3>
                   <p style={{ color: '#aaa', fontSize: '12px' }}>{movie.Year}</p>
@@ -179,10 +224,44 @@ const Home: React.FC = () => {
         <div style={gridStyle}>
           {apiMovies.map((movie) => (
             <div key={movie.imdbID} style={cardStyle}>
-              <img src={movie.Poster !== 'N/A' ? movie.Poster : 'https://via.placeholder.com/300x450'} alt={movie.Title} style={imageStyle} />
+              
+              {/* BLOCO DA IMAGEM / PLACEHOLDER */}
+              <div style={{ position: 'relative', width: '100%', aspectRatio: '2/3', background: '#1a1a1a', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
+                {/* Criamos um estado local ou usamos uma técnica de 'target' para esconder a imagem 
+                    se ela falhar, mostrando o placeholder que está por baixo.
+                */}
+                {movie.Poster && movie.Poster !== 'N/A' ? (
+                  <img 
+                    src={movie.Poster} 
+                    alt={movie.Title} 
+                    style={{ ...imageStyle, display: 'block', position: 'absolute', top: 0, left: 0, zIndex: 2 }} 
+                    onError={(e) => { 
+                      // Se a imagem falhar, nós a escondemos
+                      (e.target as HTMLImageElement).style.display = 'none'; 
+                    }}
+                  />
+                ) : null}
+
+                {/* Este bloco fica SEMPRE por baixo. Se a imagem acima sumir ou não existir, ele aparece */}
+                <div style={{ textAlign: 'center', padding: '10px', zIndex: 1 }}>
+                  <span style={{ fontSize: '40px', display: 'block', marginBottom: '10px' }}>🎬</span>
+                  <p style={{ fontSize: '12px', color: '#666', fontWeight: 'bold', textTransform: 'uppercase' }}>
+                    Cartaz Indisponível
+                  </p>
+                </div>
+              </div>
+
+              {/* INFORMAÇÕES E BOTÃO */}
               <div style={{ padding: '12px' }}>
                 <h3 style={titleStyle}>{movie.Title}</h3>
                 <p style={{ color: '#aaa', fontSize: '12px' }}>{movie.Year}</p>
+                
+                <button 
+                  onClick={() => handleImportMovie(movie)}
+                  style={importButtonStyle}
+                >
+                  Adicionar à Coleção
+                </button>
               </div>
             </div>
           ))}
@@ -204,8 +283,11 @@ const cardStyle: React.CSSProperties = {
   background: '#1a1a1a',
   borderRadius: '12px',
   overflow: 'hidden',
+  display: 'flex',
+  flexDirection: 'column',
   transition: 'transform 0.2s ease', // Efeito suave
-  border: '1px solid #333'
+  border: '1px solid #333',
+  height: '100%'
 };
 
 const addButtonStyle = {
@@ -217,7 +299,13 @@ const addButtonStyle = {
   fontWeight: 'bold' as const,
   boxShadow: '0 4px 14px rgba(229, 9, 20, 0.4)'
 };
-const imageStyle: React.CSSProperties = { width: '100%', height: '300px', objectFit: 'cover' };
+const imageStyle: React.CSSProperties = { 
+  width: '100%', 
+  height: 'auto', 
+  aspectRatio: '2 / 3',
+  objectFit: 'cover',
+  backgroundColor: '#000'
+  };
 const titleStyle: React.CSSProperties = { fontSize: '16px', color: 'white', margin: '8px 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' };
 const actionsStyle: React.CSSProperties = { display: 'flex', gap: '8px', marginTop: '12px' };
 const centerStyle: React.CSSProperties = { color: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' };
@@ -241,6 +329,28 @@ const sectionTitleStyle: React.CSSProperties = {
   paddingLeft: '5px',
   borderLeft: '4px solid #E50914', // Um detalhe elegante no início do título
   lineHeight: '1.2'
+};
+const importButtonStyle = {
+  marginTop: '10px',
+  width: '100%',
+  padding: '8px',
+  backgroundColor: 'transparent',
+  color: '#f1c40f', // Amarelo estrela
+  border: '1px solid #f1c40f',
+  borderRadius: '6px',
+  cursor: 'pointer',
+  fontSize: '12px',
+  fontWeight: 'bold' as const,
+  transition: 'all 0.2s'
+};
+const placeholderContainerStyle: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
+  height: '100%',
+  width: '100%',
+  backgroundColor: '#1a1a1a',
 };
 
 export default Home;

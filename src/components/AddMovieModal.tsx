@@ -20,20 +20,26 @@ const AddMovieModal: React.FC<AddMovieModalProps> = ({ onAdd, onClose, movieToEd
   }, [movieToEdit]);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title || !year) {
-      alert("Título e Ano são obrigatórios!");
-      return;
-    }
+  e.preventDefault();
 
-    onAdd({
-      Title: title,
-      Year: year,
-      Poster: poster || 'https://via.placeholder.com/300x450?text=Sem+Imagem',
-      imdbID: movieToEdit ? movieToEdit.imdbID : `custom-${Date.now()}`,
-      isCustom: true
-    });
-  };
+  // Regex: ^ (início), \d{4} (4 dígitos), $ (fim)
+  const yearRegex = /^\d{4}$/;
+  if (!title || !year) {
+    alert("Título e Ano são obrigatórios!");
+    return;
+  }
+  if (!yearRegex.test(year)) {
+    alert("O ano deve conter exatamente 4 números (Ex: 1998)");
+    return;
+  }
+  onAdd({
+    Title: title,
+    Year: year,
+    Poster: poster, // Passamos o que o usuário digitou (pode ser vazio)
+    imdbID: movieToEdit ? movieToEdit.imdbID : `custom-${Date.now()}`,
+    isCustom: true
+  });
+};
 
   return (
     <div style={overlayStyle}>
