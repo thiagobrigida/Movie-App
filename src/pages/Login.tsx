@@ -21,7 +21,7 @@ const Login: React.FC = () => {
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
       <form onSubmit={handleLogin} style={{ background: '#1f1f1f', padding: '2rem', borderRadius: '8px', width: '300px' }}>
-        <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>🎥 Movie App</h2>
+        <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>Movie App</h2>
         
         <input 
           type="email" 
