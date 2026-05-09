@@ -115,7 +115,7 @@ const Home: React.FC = () => {
     <div style={containerStyle}>
       {/* Cabeçalho Reutilizável [cite: 72] */}
       <header style={headerStyle}>
-        <h1 style={{ color: '#E50914' }}>🎥 MovieChallenge</h1>
+        <h1 style={{ color: '#E50914' }}>Movie APP</h1>
         <div style={{ display: 'flex', gap: '10px' }}>
           <button onClick={openAddModal} style={addButtonStyle}>+ Novo Filme</button>
           <button onClick={handleLogout} style={logoutButtonStyle}>Sair</button>
