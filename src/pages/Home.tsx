@@ -22,7 +22,7 @@ const Home: React.FC = () => {
   const [loading, setLoading] = useState(true);            // Feedback visual de carregamento
   const [isModalOpen, setIsModalOpen] = useState(false);   // Controle do Modal de CRUD
   const [movieToEdit, setMovieToEdit] = useState<Movie | null>(null); // Estado para o Update
-  const [searchTerm, setSearchTerm] = useState('Marvel'); // 'Marvel' ainda é o padrão inicial
+  const [searchTerm, setSearchTerm] = useState(''); // 'Marvel' ainda é o padrão inicial
   const [selectedMovie, setSelectedMovie] = useState<any | null>(null);
   const [userName, setUserName] = useState(() => localStorage.getItem('@User_Name') || 'Membro EJ');
   const [avatar, setAvatar] = useState(() => localStorage.getItem('@User_Avatar') || 'user');
@@ -36,12 +36,6 @@ const Home: React.FC = () => {
   useEffect(() => {
     async function loadInitialData() {
       try {
-        // Consome API pública à escolha (Ex: Marvel)
-        const response = await api.get(`?s=Marvel&apikey=${API_KEY}`);
-        if (response.data.Search) {
-          setApiMovies(response.data.Search);
-        }
-
         // Recupera dados salvos localmente para o CRUD
         const saved = localStorage.getItem('@MyMovies');
         if (saved) {
@@ -113,16 +107,41 @@ const Home: React.FC = () => {
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const trimmedSearch = searchTerm.trim();
+    if (!trimmedSearch) {
+      alert("Digite o nome de um filme para pesquisar!");
+      return;
+    }
+
     setLoading(true);
     try {
-      const response = await api.get(`?s=${searchTerm}&apikey=${API_KEY}`);
-      if (response.data.Search) {
-        setApiMovies(response.data.Search);
+      // Se o termo tiver menos de 3 caracteres, usamos o parâmetro '?t=' (Título Exato)
+      if (trimmedSearch.length < 3) {
+        const response = await api.get(`?t=${trimmedSearch}&apikey=${API_KEY}`);
+        
+        if (response.data && response.data.Response !== "False") {
+          // Como '?t=' retorna apenas um objeto de filme (e não uma lista), 
+          // nós o envelopamos em um array para o seu .map() continuar funcionando!
+          setApiMovies([response.data]);
+        } else {
+          alert(`Nenhum filme encontrado com o título exato "${trimmedSearch}"`);
+          setApiMovies([]);
+        }
       } else {
-        alert("Nenhum filme encontrado!");
+        // Se tiver 3 ou mais caracteres, faz a busca por listagem padrão (?s=)
+        const response = await api.get(`?s=${trimmedSearch}&apikey=${API_KEY}`);
+        
+        if (response.data.Search) {
+          setApiMovies(response.data.Search);
+        } else {
+          alert("Nenhum filme encontrado para esta pesquisa!");
+          setApiMovies([]);
+        }
       }
     } catch (error) {
-      console.error(error);
+      console.error("Erro na busca:", error);
+      alert("Houve um erro ao conectar com o servidor de filmes.");
     } finally {
       setLoading(false);
     }
@@ -318,7 +337,7 @@ const Home: React.FC = () => {
             transition: 'all 0.2s'
           }}
         >
-          Busca IMDb
+          Busca OMDb
         </button>
       </div>
 
@@ -388,6 +407,8 @@ const Home: React.FC = () => {
       {(activeTab === 'all' || activeTab === 'api') && (
       <section>
         <h2 style={sectionTitleStyle}>Resultados da OMDb</h2>
+        
+        {apiMovies.length > 0 ? (
         <div style={gridStyle}>
           {apiMovies.map((movie) => (
             <div key={movie.imdbID} style={cardStyle}>              
@@ -429,6 +450,14 @@ const Home: React.FC = () => {
             </div>
           ))}
         </div>
+        ) : (
+          /* Mensagem caso o usuário ainda não tenha pesquisado nada */
+          <div style={{ textAlign: 'center', padding: '40px', color: '#555', border: '1px dashed #333', borderRadius: '8px' }}>
+            <p style={{ fontSize: '15px', margin: 0 }}>
+              Digite o nome de um filme na barra de busca acima para explorar o catálogo da OMDb.
+            </p>
+          </div>
+        )}
       </section>
       )}
 

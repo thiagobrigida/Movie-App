@@ -11,11 +11,11 @@ const Login: React.FC = () => {
     e.preventDefault();
 
     // Validação simples (Substitua pelas suas credenciais se necessário)
-    if (email === 'admin@ej.com' && password === '123456') {
+    if (email === 'admin@admin.com' && password === '123456') {
       localStorage.setItem('isAuthenticated', 'true');
-      navigate('/');
+      navigate('/home');
     } else {
-      alert('Credenciais inválidas! Dica: admin@ej.com / 123456');
+      alert('Credenciais inválidas! Dica: admin@admin.com / 123456');
     }
   };
 
@@ -78,11 +78,15 @@ const Login: React.FC = () => {
 const backgroundContainerStyle: React.CSSProperties = {
   width: '100vw',
   height: '100vh',
-  background: '#000000', // Fundo preto puro para destacar o card
+  background: '#000000',
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-  overflow: 'hidden'
+  position: 'fixed', // Garante que ocupa a tela toda mesmo se houver margens globais
+  top: 0,
+  left: 0,
+  overflow: 'hidden',
+  boxSizing: 'border-box'
 };
 
 const overlayStyle: React.CSSProperties = {
@@ -91,19 +95,21 @@ const overlayStyle: React.CSSProperties = {
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-  background: 'radial-gradient(circle, rgba(20,20,20,0.4) 0%, rgba(0,0,0,0.85) 100%)' // Efeito de holofote sutil de cinema
+  background: 'radial-gradient(circle, rgba(20,20,20,0.4) 0%, rgba(0,0,0,0.85) 100%)',
+  boxSizing: 'border-box'
 };
 
 const loginCardStyle: React.CSSProperties = {
-  background: 'rgba(26, 26, 26, 0.85)', // Cinza escuro translúcido
+  background: 'rgba(26, 26, 26, 0.85)',
   padding: '50px 40px',
   borderRadius: '12px',
-  width: '100%',
+  width: '90%', // Uso de porcentagem com maxWidth para não quebrar em telas menores
   maxWidth: '400px',
   border: '1px solid #333',
   boxShadow: '0 15px 35px rgba(0, 0, 0, 0.6)',
-  backdropFilter: 'blur(8px)', // Efeito de vidro jateado moderno
-  boxSizing: 'border-box'
+  backdropFilter: 'blur(8px)',
+  boxSizing: 'border-box',
+  margin: 'auto' // Força o alinhamento central perfeito dentro do contêiner Flex
 };
 
 const logoStyle: React.CSSProperties = {
