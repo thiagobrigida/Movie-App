@@ -15,7 +15,7 @@ const Login: React.FC = () => {
       localStorage.setItem('isAuthenticated', 'true');
       navigate('/home');
     } else {
-      alert('Credenciais inválidas! Dica: admin@admin.com / 123456');
+      alert('Credenciais inválidas! As credenciais devem ser: admin@admin.com / 123456');
     }
   };
 
