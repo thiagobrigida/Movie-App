@@ -28,7 +28,7 @@ Antes de começar, certifique-se de ter o **Node.js** instalado em sua máquina.
 
 A aplicação estará disponível no endereço indicado no seu terminal (geralmente http://localhost:5173).
 
-**O EMAIL DO LOGIN DEVE SER "admin@admin.com" E A SENHA "123456"***
+**ATENÇÃO! NO LOGIN O EMAIL DEVE SER "admin@admin.com" E A SENHA "123456"**
 
 ### Roteiro de Teste das Funcionalidades
 Para validar o comportamento do software durante a avaliação, siga este roteiro:
