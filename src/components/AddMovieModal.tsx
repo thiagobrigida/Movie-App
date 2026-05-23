@@ -10,7 +10,6 @@ const AddMovieModal: React.FC<AddMovieModalProps> = ({ onAdd, onClose, movieToEd
   const [title, setTitle] = useState('');
   const [year, setYear] = useState('');
   const [poster, setPoster] = useState('');
-  // NOVOS ESTADOS PARA O CRUD EXPANDIDO
   const [genre, setGenre] = useState('');
   const [actors, setActors] = useState('');
   const [plot, setPlot] = useState('');
@@ -107,7 +106,7 @@ const AddMovieModal: React.FC<AddMovieModalProps> = ({ onAdd, onClose, movieToEd
   );
 };
 
-// Estilos Profissionais
+
 const overlayStyle: React.CSSProperties = {
   position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
   background: 'rgba(0,0,0,0.85)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 3000

@@ -1,18 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-// IMPORTANDO OS ÍCONES PROFISSIONAIS
 import { User, Popcorn, Video, Crown, ArrowLeft, LogOut } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-
-  // ESTADOS DO PERFIL (Salvando strings que representam o nome do ícone)
-  const [userName, setUserName] = useState(() => localStorage.getItem('@User_Name') || 'Membro EJ');
+  const [userName, setUserName] = useState(() => localStorage.getItem('@User_Name') || 'Membro Comp Jr');
   const [favoriteGenre, setFavoriteGenre] = useState(() => localStorage.getItem('@User_Genre') || 'Sci-Fi');
   const [avatar, setAvatar] = useState(() => localStorage.getItem('@User_Avatar') || 'user');
   const [isEditing, setIsEditing] = useState(false);
-
-  // ESTADOS DE ESTATÍSTICAS
   const [totalMovies, setTotalMovies] = useState(0);
   const [oldestMovie, setOldestMovie] = useState('N/A');
   const [newestMovie, setNewestMovie] = useState('N/A');
@@ -46,7 +41,6 @@ const Dashboard: React.FC = () => {
     alert('Perfil atualizado com sucesso!');
   };
 
-  // FUNÇÃO AUXILIAR: Renderiza o componente do ícone correto baseado na string salva
   const renderAvatarIcon = (avatarName: string, size: number, color: string) => {
     switch (avatarName) {
       case 'popcorn': return <Popcorn size={size} color={color} />;
@@ -75,7 +69,6 @@ const Dashboard: React.FC = () => {
       </header>
 
       <div style={gridDashboardStyle}>
-        {/* SEÇÃO DE PERFIL */}
         <section style={panelStyle}>
           <h2 style={sectionTitleStyle}>Meu Perfil</h2>
           {!isEditing ? (
@@ -116,7 +109,6 @@ const Dashboard: React.FC = () => {
           )}
         </section>
 
-        {/* SEÇÃO DE ESTATÍSTICAS */}
         <section style={panelStyle}>
           <h2 style={sectionTitleStyle}>Insights da Coleção</h2>
           <div style={statsContainerStyle}>
@@ -139,20 +131,103 @@ const Dashboard: React.FC = () => {
   );
 };
 
-// Estilos mantidos para consistência
-const containerStyle: React.CSSProperties = { padding: '20px', maxWidth: '1200px', margin: '0 auto', minHeight: '100vh' };
-const gridDashboardStyle: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '30px' };
-const panelStyle: React.CSSProperties = { background: '#1a1a1a', padding: '30px', borderRadius: '12px', border: '1px solid #333' };
-const labelStyle: React.CSSProperties = { display: 'block', color: '#aaa', marginBottom: '5px', fontSize: '14px' };
-const inputStyle = { width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #444', background: '#000', color: '#fff', fontSize: '14px', outline: 'none' };
-const sectionTitleStyle: React.CSSProperties = { color: '#fff', fontSize: '20px', marginBottom: '20px', paddingLeft: '5px', borderLeft: '4px solid #E50914' };
-const editProfileButtonStyle = { marginTop: '20px', padding: '10px 20px', background: '#333', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' };
-const saveButtonStyle = { flex: 1, padding: '12px', background: '#E50914', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' };
-const cancelButtonStyle = { flex: 1, padding: '12px', background: 'transparent', color: '#ccc', border: '1px solid #444', borderRadius: '6px', cursor: 'pointer' };
-const statsContainerStyle: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '15px' };
-const statBoxStyle: React.CSSProperties = { background: '#0a0a0a', padding: '15px', borderRadius: '8px', border: '1px solid #222' };
-const statLabelStyle: React.CSSProperties = { color: '#888', fontSize: '12px', textTransform: 'uppercase', marginBottom: '5px' };
-const statValueStyle: React.CSSProperties = { color: '#fff', fontSize: '32px', fontWeight: 'bold' };
-const statSubValueStyle: React.CSSProperties = { color: '#fff', fontSize: '15px', fontWeight: '600', marginTop: '3px' };
+
+const containerStyle: React.CSSProperties = { 
+    padding: '20px', 
+    maxWidth: '1200px', 
+    margin: '0 auto', 
+    minHeight: '100vh' 
+};
+const gridDashboardStyle: React.CSSProperties = { 
+    display: 'grid', 
+    gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', 
+    gap: '30px' 
+};
+const panelStyle: React.CSSProperties = { 
+    background: '#1a1a1a', 
+    padding: '30px', 
+    borderRadius: '12px', 
+    border: '1px solid #333' 
+};
+const labelStyle: React.CSSProperties = { 
+    display: 'block',
+    color: '#aaa', 
+    marginBottom: '5px', 
+    fontSize: '14px' 
+};
+const inputStyle = { 
+    width: '100%', 
+    padding: '10px', 
+    borderRadius: '6px', 
+    border: '1px solid #444', 
+    background: '#000', 
+    color: '#fff', 
+    fontSize: '14px', 
+    outline: 'none' 
+};
+const sectionTitleStyle: React.CSSProperties = { 
+    color: '#fff', 
+    fontSize: '20px', 
+    marginBottom: '20px', 
+    paddingLeft: '5px', 
+    borderLeft: '4px solid #E50914' 
+};
+const editProfileButtonStyle = { 
+    marginTop: '20px', 
+    padding: '10px 20px', 
+    background: '#333', 
+    color: '#fff', 
+    border: 'none', 
+    borderRadius: '6px', 
+    cursor: 'pointer', 
+    fontWeight: 'bold' 
+};
+const saveButtonStyle = { 
+    flex: 1, 
+    padding: '12px', 
+    background: '#E50914', 
+    color: '#fff', 
+    border: 'none', 
+    borderRadius: '6px', 
+    fontWeight: 'bold', 
+    cursor: 'pointer' 
+};
+const cancelButtonStyle = { 
+    flex: 1, 
+    padding: '12px', 
+    background: 'transparent', 
+    color: '#ccc', 
+    border: '1px solid #444', 
+    borderRadius: '6px', 
+    cursor: 'pointer' 
+};
+const statsContainerStyle: React.CSSProperties = { 
+    display: 'flex', 
+    flexDirection: 'column', 
+    gap: '15px' 
+};
+const statBoxStyle: React.CSSProperties = { 
+    background: '#0a0a0a', 
+    padding: '15px', 
+    borderRadius: '8px', 
+    border: '1px solid #222' 
+};
+const statLabelStyle: React.CSSProperties = { 
+    color: '#888', 
+    fontSize: '12px', 
+    textTransform: 'uppercase', 
+    marginBottom: '5px' 
+};
+const statValueStyle: React.CSSProperties = { 
+    color: '#fff', 
+    fontSize: '32px', 
+    fontWeight: 'bold' 
+};
+const statSubValueStyle: React.CSSProperties = { 
+    color: '#fff', 
+    fontSize: '15px', 
+    fontWeight: '600', 
+    marginTop: '3px' 
+};
 
 export default Dashboard;

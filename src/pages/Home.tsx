@@ -13,15 +13,15 @@ interface Movie {
 }
 
 const Home: React.FC = () => {
-  const [apiMovies, setApiMovies] = useState<Movie[]>([]); // Dados da API externa
-  const [myMovies, setMyMovies] = useState<Movie[]>([]);   // Dados do LocalStorage
-  const [loading, setLoading] = useState(true);            // Feedback visual de carregamento
-  const [isModalOpen, setIsModalOpen] = useState(false);   // Controle do Modal de CRUD
-  const [movieToEdit, setMovieToEdit] = useState<Movie | null>(null); // Estado para o Update
+  const [apiMovies, setApiMovies] = useState<Movie[]>([]);
+  const [myMovies, setMyMovies] = useState<Movie[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [movieToEdit, setMovieToEdit] = useState<Movie | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMovie, setSelectedMovie] = useState<any | null>(null);
-  const [userName, setUserName] = useState(() => localStorage.getItem('@User_Name') || 'Membro Comp Jr');
-  const [avatar, setAvatar] = useState(() => localStorage.getItem('@User_Avatar') || 'user');
+  const [userName] = useState(() => localStorage.getItem('@User_Name') || 'Membro Comp Jr');
+  const [avatar] = useState(() => localStorage.getItem('@User_Avatar') || 'user');
   const [activeTab, setActiveTab] = useState<'all' | 'my-movies' | 'api'>('all');
 
   const navigate = useNavigate();
@@ -79,11 +79,6 @@ const Home: React.FC = () => {
   const closeModal = () => {
     setIsModalOpen(false);
     setMovieToEdit(null);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('isAuthenticated');
-    navigate('/login');
   };
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -523,14 +518,7 @@ const containerStyle: React.CSSProperties = {
   margin: '0 auto', 
   minHeight: '100vh' 
 };
-const headerStyle: React.CSSProperties = { 
-  display: 'flex', 
-  justifyContent: 'space-between', 
-  alignItems: 'center', 
-  marginBottom: '40px', 
-  flexWrap: 'wrap', 
-  gap: '20px' 
-};
+
 const gridStyle: React.CSSProperties = { 
   display: 'grid', 
   gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', 
@@ -597,14 +585,6 @@ const searchInputStyle = {
   color: '#fff',
   fontSize: '16px',
   outline: 'none'
-};
-
-const logoutButtonStyle = { padding: '10px', 
-  background: 'transparent', 
-  color: '#ccc', 
-  border: '1px solid #ccc', 
-  borderRadius: '4px',
-  cursor: 'pointer' 
 };
 const editButtonStyle = { 
   flex: 1, 
