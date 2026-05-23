@@ -1,5 +1,3 @@
-**O EMAIL DO LOGIN DEVE SER "admin@admin.com" E A SENHA "123456"***
-
 # Movie APP — Gerenciador de Catálogo de Cinema
 
 O **Movie APP** é uma aplicação web desenvolvida em **React**, **TypeScript** e **Vite** para o gerenciamento dinâmico e personalizado de catálogos de filmes. A plataforma integra a API pública **OMDb (Open Movie Database)** e oferece um ecossistema completo de CRUD local, controle de perfil customizável e análises estatísticas simples em tempo real.
@@ -37,7 +35,7 @@ Para validar o comportamento do software durante a avaliação, siga este roteir
 
 Acesso à Plataforma: Use as credenciais padrão na tela de login:
 
-E-mail: admin@ej.com
+E-mail: admin@admin.com
 
 Senha: 123456
 
