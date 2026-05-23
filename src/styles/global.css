@@ -1,9 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
 :root {
-  --primary: #E50914;      /* Vermelho vibrante */
-  --background: #0a0a0a;  /* Fundo quase preto */
-  --surface: #1a1a1a;     /* Cinza para os cards */
+  --primary: #E50914;
+  --background: #0a0a0a;
+  --surface: #1a1a1a;
   --text: #ffffff;
 }
 

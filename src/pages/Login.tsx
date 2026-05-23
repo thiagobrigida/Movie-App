@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, Mail } from 'lucide-react'; // Ícones profissionais para os inputs
+import { Lock, Mail } from 'lucide-react';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -10,7 +10,6 @@ const Login: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validação simples (Substitua pelas suas credenciais se necessário)
     if (email === 'admin@admin.com' && password === '123456') {
       localStorage.setItem('isAuthenticated', 'true');
       navigate('/home');
@@ -21,7 +20,6 @@ const Login: React.FC = () => {
 
   return (
     <div style={backgroundContainerStyle}>
-      {/* Camada escurecida para dar o clima de cinema de fundo */}
       <div style={overlayStyle}>
         
         <div style={loginCardStyle}>
@@ -57,7 +55,7 @@ const Login: React.FC = () => {
             </div>
 
             <button type="submit" style={loginButtonStyle}>
-              Acessar Plataforma
+              Entrar
             </button>
           </form>
 
@@ -73,7 +71,6 @@ const Login: React.FC = () => {
   );
 };
 
-// --- ESTILOS VISUAIS PREMIUM (DARK MODE / NETFLIX STYLE) ---
 
 const backgroundContainerStyle: React.CSSProperties = {
   width: '100vw',
@@ -82,7 +79,7 @@ const backgroundContainerStyle: React.CSSProperties = {
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-  position: 'fixed', // Garante que ocupa a tela toda mesmo se houver margens globais
+  position: 'fixed',
   top: 0,
   left: 0,
   overflow: 'hidden',
@@ -103,13 +100,13 @@ const loginCardStyle: React.CSSProperties = {
   background: 'rgba(26, 26, 26, 0.85)',
   padding: '50px 40px',
   borderRadius: '12px',
-  width: '90%', // Uso de porcentagem com maxWidth para não quebrar em telas menores
+  width: '90%',
   maxWidth: '400px',
   border: '1px solid #333',
   boxShadow: '0 15px 35px rgba(0, 0, 0, 0.6)',
   backdropFilter: 'blur(8px)',
   boxSizing: 'border-box',
-  margin: 'auto' // Força o alinhamento central perfeito dentro do contêiner Flex
+  margin: 'auto'
 };
 
 const logoStyle: React.CSSProperties = {
@@ -143,7 +140,7 @@ const iconStyle: React.CSSProperties = {
 
 const inputStyle = {
   width: '100%',
-  padding: '14px 14px 14px 45px', // Espaço extra na esquerda para o ícone não cobrir o texto
+  padding: '14px 14px 14px 45px',
   borderRadius: '6px',
   border: '1px solid #444',
   background: '#0a0a0a',

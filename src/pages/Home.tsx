@@ -2,41 +2,33 @@ import React, { useEffect, useState } from 'react';
 import api, { API_KEY } from '../services/api';
 import AddMovieModal from '../components/AddMovieModal';
 import { useNavigate } from 'react-router-dom';
-import {User, Popcorn, Video, Crown} from 'lucide-react'
-/**
- * Interface Movie: Define a estrutura de dados para consistência no TypeScript.
- * Cobre o requisito de organização e tipagem.
- */
+import {User, Popcorn, Video, Crown, Clapperboard, Star} from 'lucide-react'
+
 interface Movie {
   imdbID: string;
   Title: string;
   Year: string;
   Poster: string;
-  isCustom?: boolean; // Flag para identificar filmes criados manualmente
+  isCustom?: boolean;
 }
 
 const Home: React.FC = () => {
-  // ESTADOS DA APLICAÇÃO
   const [apiMovies, setApiMovies] = useState<Movie[]>([]); // Dados da API externa
   const [myMovies, setMyMovies] = useState<Movie[]>([]);   // Dados do LocalStorage
   const [loading, setLoading] = useState(true);            // Feedback visual de carregamento
   const [isModalOpen, setIsModalOpen] = useState(false);   // Controle do Modal de CRUD
   const [movieToEdit, setMovieToEdit] = useState<Movie | null>(null); // Estado para o Update
-  const [searchTerm, setSearchTerm] = useState(''); // 'Marvel' ainda é o padrão inicial
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedMovie, setSelectedMovie] = useState<any | null>(null);
-  const [userName, setUserName] = useState(() => localStorage.getItem('@User_Name') || 'Membro EJ');
+  const [userName, setUserName] = useState(() => localStorage.getItem('@User_Name') || 'Membro Comp Jr');
   const [avatar, setAvatar] = useState(() => localStorage.getItem('@User_Avatar') || 'user');
   const [activeTab, setActiveTab] = useState<'all' | 'my-movies' | 'api'>('all');
 
   const navigate = useNavigate();
 
-  /**
-   * Ciclo de Vida: Busca dados iniciais da API e do LocalStorage (Semana 2).
-   */
   useEffect(() => {
     async function loadInitialData() {
       try {
-        // Recupera dados salvos localmente para o CRUD
         const saved = localStorage.getItem('@MyMovies');
         if (saved) {
           setMyMovies(JSON.parse(saved));
@@ -50,19 +42,14 @@ const Home: React.FC = () => {
     loadInitialData();
   }, []);
 
-  /**
-   * CREATE / UPDATE: Salva ou atualiza um filme no LocalStorage.
-   */
   const handleSaveMovie = (movieData: Movie) => {
     let updatedList;
 
     const exists = myMovies.find(m => m.imdbID === movieData.imdbID);
 
     if (exists) {
-      // Lógica de UPDATE (Editar)
       updatedList = myMovies.map(m => m.imdbID === movieData.imdbID ? movieData : m);
     } else {
-      // Lógica de CREATE (Adicionar)
       updatedList = [movieData, ...myMovies];
     }
 
@@ -71,9 +58,6 @@ const Home: React.FC = () => {
     closeModal();
   };
 
-  /**
-   * DELETE: Remove um filme da lista customizada.
-   */
   const handleDeleteMovie = (id: string) => {
     if (window.confirm("Deseja realmente excluir este filme?")) {
       const filtered = myMovies.filter(m => m.imdbID !== id);
@@ -82,9 +66,6 @@ const Home: React.FC = () => {
     }
   };
 
-  /**
-   * Funções de Controle da Interface (UX)
-   */
   const openAddModal = () => {
     setMovieToEdit(null);
     setIsModalOpen(true);
@@ -101,7 +82,7 @@ const Home: React.FC = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('isAuthenticated'); // Requisito de Login
+    localStorage.removeItem('isAuthenticated');
     navigate('/login');
   };
 
@@ -116,22 +97,16 @@ const Home: React.FC = () => {
 
     setLoading(true);
     try {
-      // Se o termo tiver menos de 3 caracteres, usamos o parâmetro '?t=' (Título Exato)
       if (trimmedSearch.length < 3) {
         const response = await api.get(`?t=${trimmedSearch}&apikey=${API_KEY}`);
-        
         if (response.data && response.data.Response !== "False") {
-          // Como '?t=' retorna apenas um objeto de filme (e não uma lista), 
-          // nós o envelopamos em um array para o seu .map() continuar funcionando!
           setApiMovies([response.data]);
         } else {
           alert(`Nenhum filme encontrado com o título exato "${trimmedSearch}"`);
           setApiMovies([]);
         }
       } else {
-        // Se tiver 3 ou mais caracteres, faz a busca por listagem padrão (?s=)
         const response = await api.get(`?s=${trimmedSearch}&apikey=${API_KEY}`);
-        
         if (response.data.Search) {
           setApiMovies(response.data.Search);
         } else {
@@ -148,11 +123,9 @@ const Home: React.FC = () => {
   };
 
   const handleViewDetails = async (id: string) => {
-  // 1. Verifica se o filme clicado faz parte dos MEUS FILMES (LocalStorage)
   const localMovie = myMovies.find(m => m.imdbID === id);
 
   if (localMovie) {
-    // Se for um filme customizado, abrimos o modal diretamente com os dados locais!
     setSelectedMovie({
       Title: localMovie.Title,
       Year: localMovie.Year,
@@ -163,7 +136,6 @@ const Home: React.FC = () => {
       imdbRating: 'N/A' // Filmes autorais não possuem nota automática do IMDb
     });
   } else {
-    // 2. Se não for local, significa que veio da API. Buscamos na OMDb normalmente
     try {
       const response = await api.get(`?i=${id}&plot=full&apikey=${API_KEY}`);
       setSelectedMovie(response.data);
@@ -173,18 +145,13 @@ const Home: React.FC = () => {
   }
 };
 
-  /**
-   * Importa um filme da API para a Coleção Pessoal
-   * @param apiMovie Objeto do filme vindo da OMDb
-   */
+
   const handleImportMovie = (apiMovie: Movie) => {
-    // Verifica se o filme já existe na coleção para não duplicar
     const alreadyExists = myMovies.find(m => m.imdbID === apiMovie.imdbID);
     if (alreadyExists) {
       alert("Este filme já está na sua coleção!");
       return;
     }
-    // Cria a cópia com a flag 'isCustom' para permitir edição/exclusão depois
     const movieToImport = {
       ...apiMovie,
       isCustom: true
@@ -192,7 +159,7 @@ const Home: React.FC = () => {
     const updatedList = [movieToImport, ...myMovies];
     setMyMovies(updatedList);
     localStorage.setItem('@MyMovies', JSON.stringify(updatedList));
-    alert(`${apiMovie.Title} foi adicionado à sua coleção! ⭐`);
+    alert(`${apiMovie.Title} foi adicionado à sua coleção!`);
   };
 
   if (loading) return <div style={centerStyle}>Carregando catálogo...</div>;
@@ -214,49 +181,48 @@ const Home: React.FC = () => {
         alignItems: 'center', 
         marginBottom: '40px', 
         padding: '15px 0',
-        borderBottom: '1px solid #222' // Linha subtil divisória
-      }}>
-        {/* LADO ESQUERDO: TÍTULO */}
+        borderBottom: '1px solid #222'
+        }}>
+
         <h1 style={{ color: '#E50914', margin: 0, fontSize: '26px', letterSpacing: '1px' }}>
           Movie APP
         </h1>
 
-        {/* LADO DIREITO: MENU DE NAVEGAÇÃO */}
         <nav style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span style={{ color: '#fff', fontSize: '14px', fontWeight: '500' }}>
               Olá, <span style={{ color: '#E50914', fontWeight: 'bold' }}>{userName}</span>
             </span>
             <button 
-            onClick={() => navigate('/dashboard')} 
-            style={{ 
-              padding: '3px 9px', 
-              background: '#080808', 
-              border: '1px', 
-              borderRadius: '6px', 
-              cursor: 'pointer', 
-              fontWeight: 'bold',
-              fontSize: '14px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
-          >
-            <div style={{ 
-              background: '#141414', 
-              padding: '9px', 
-              borderRadius: '50%', 
-              border: '1px solid #E50914',
-              justifyContent: 'center',
-            }}>
-              {renderAvatarIcon(avatar, 25, '#E50914')}
-            </div>
-          </button>
+              onClick={() => navigate('/dashboard')} 
+              style={{ 
+                padding: '3px 9px', 
+                background: '#080808', 
+                border: '1px', 
+                borderRadius: '6px', 
+                cursor: 'pointer', 
+                fontWeight: 'bold',
+                fontSize: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <div style={{ 
+                  background: '#141414', 
+                  padding: '9px', 
+                  borderRadius: '50%', 
+                  border: '1px solid #E50914',
+                  justifyContent: 'center',
+                }}>
+                {renderAvatarIcon(avatar, 25, '#E50914')}
+              </div>
+            </button>
           </div>
         </nav>
       </header>
-
-      {/* SEÇÃO 1: BARRA DE BUSCA */}
+      
+      {/* Barra de busca */}
       <form onSubmit={handleSearch} style={{ marginBottom: '40px', display: 'flex', gap: '10px' }}>
         <input 
           type="text" 
@@ -268,21 +234,20 @@ const Home: React.FC = () => {
         <button type="submit" style={addButtonStyle}>Buscar por nome</button>
 
         <button 
-            onClick={openAddModal} 
-            style={{ 
-              padding: '10px 18px', 
-              backgroundColor: '#E50914', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '6px', 
-              fontWeight: 'bold', 
-              cursor: 'pointer',
-              fontSize: '14px'
-            }}
+          onClick={openAddModal} 
+          style={{ 
+            padding: '10px 18px', 
+            backgroundColor: '#E50914', 
+            color: 'white', 
+            border: 'none', 
+            borderRadius: '6px', 
+            fontWeight: 'bold', 
+            cursor: 'pointer',
+            fontSize: '14px'
+          }}
           >
-            + Novo Filme
-          </button>
-
+          + Novo Filme
+        </button>
       </form>
 
       <div style={{ 
@@ -291,7 +256,7 @@ const Home: React.FC = () => {
         marginBottom: '30px', 
         borderBottom: '1px solid #222', 
         paddingBottom: '15px' 
-      }}>
+        }}>
         <button 
           onClick={() => setActiveTab('all')} 
           style={{
@@ -341,31 +306,53 @@ const Home: React.FC = () => {
         </button>
       </div>
 
-      {/* SEÇÃO 2: MEUS FILMES (LocalStorage) */}
+      {/* MEUS FILMES */}
       {(activeTab === 'all' || activeTab === 'my-movies') && myMovies.length > 0 && (
         <section style={{ marginBottom: '50px' }}>
           <h2 style={sectionTitleStyle}>Meus Filmes</h2>
           <div style={gridStyle}>
             {myMovies.map((movie) => (
               <div key={movie.imdbID} style={cardStyle}>                
-                {/* BLOCO DA IMAGEM / PLACEHOLDER */}
                 <div 
-                onClick={() => handleViewDetails(movie.imdbID)}
-                style={{ position: 'relative', width: '100%', aspectRatio: '2/3', background: '#1a1a1a', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden', cursor: 'pointer' }}>
-                  {movie.Poster && movie.Poster !== 'N/A' ? (
-                    <img 
-                      src={movie.Poster} 
-                      alt={movie.Title} 
-                      style={{ ...imageStyle, display: 'block', position: 'absolute', top: 0, left: 0, zIndex: 2 }} 
-                      onError={(e) => { 
-                        (e.target as HTMLImageElement).style.display = 'none'; 
-                      }}
-                    />
-                  ) : null}
+                  onClick={() => handleViewDetails(movie.imdbID)}
+                  style={{ 
+                    position: 'relative',
+                    width: '100%',
+                    aspectRatio: '2/3',
+                    background: '#1a1a1a', 
+                    display: 'flex', 
+                    justifyContent: 'center', 
+                    alignItems: 'center', 
+                    overflow: 'hidden', 
+                    cursor: 'pointer' 
+                  }}>
+                    {movie.Poster && movie.Poster !== 'N/A' ? (
+                      <img 
+                        src={movie.Poster} 
+                        alt={movie.Title} 
+                        style={{
+                          ...imageStyle, 
+                          display: 'block', 
+                          position: 'absolute', 
+                          top: 0, 
+                          left: 0, 
+                          zIndex: 2 
+                        }} 
+                        onError={(e) => { 
+                          (e.target as HTMLImageElement).style.display = 'none'; 
+                        }}
+                      />
+                    ) : null}
 
-                  <div style={{ textAlign: 'center', padding: '10px', zIndex: 1 }}>
-                    <span style={{ fontSize: '40px', display: 'block', marginBottom: '10px' }}>🎬</span>
-                    <p style={{ fontSize: '12px', color: '#666', fontWeight: 'bold', textTransform: 'uppercase' }}>
+                  <div style={{ textAlign: 'center', 
+                    padding: '15px', 
+                    zIndex: 1, 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    alignItems: 'center' 
+                    }}>
+                    <Clapperboard size={40} color="#E50914" style={{ marginBottom: '12px' }} />
+                    <p style={{ fontSize: '12px', color: '#666', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>
                       Cartaz Indisponível
                     </p>
                   </div>
@@ -375,7 +362,6 @@ const Home: React.FC = () => {
                   <h3 style={titleStyle}>{movie.Title}</h3>
                   <p style={{ color: '#aaa', fontSize: '12px' }}>{movie.Year}</p>
                   <div style={actionsStyle}>
-                    {/* e.stopPropagation() evita que o clique no botão abra os detalhes do filme */}
                     <button 
                       onClick={(e) => { e.stopPropagation(); openEditModal(movie); }} 
                       style={editButtonStyle}
@@ -396,14 +382,14 @@ const Home: React.FC = () => {
         </section>
       )}
 
-      {/* Se o usuário clicar em "Minha Coleção" mas não tiver filmes salvos, mostra um aviso legal */}
       {activeTab === 'my-movies' && myMovies.length === 0 && (
         <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
-          <p style={{ fontSize: '18px' }}>Sua coleção está vazia. Adicione filmes acima ou importe da busca! 🎬</p>
+          <p style={{ fontSize: '18px' }}>Sua coleção está vazia. Adicione filmes acima ou importe da busca!</p>
         </div>
       )}
 
-      {/* SEÇÃO 3: RESULTADOS DA API */}
+
+      {/* RESULTADOS DA API */}
       {(activeTab === 'all' || activeTab === 'api') && (
       <section>
         <h2 style={sectionTitleStyle}>Resultados da OMDb</h2>
@@ -412,30 +398,44 @@ const Home: React.FC = () => {
         <div style={gridStyle}>
           {apiMovies.map((movie) => (
             <div key={movie.imdbID} style={cardStyle}>              
-              {/* BLOCO DA IMAGEM / PLACEHOLDER */}
               <div 
-              onClick={() => handleViewDetails(movie.imdbID)}
-              style={{ position: 'relative', width: '100%', aspectRatio: '2/3', background: '#1a1a1a', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden', cursor: 'pointer' }}>
-                {movie.Poster && movie.Poster !== 'N/A' ? (
-                  <img 
-                    src={movie.Poster} 
-                    alt={movie.Title} 
-                    style={{ ...imageStyle, display: 'block', position: 'absolute', top: 0, left: 0, zIndex: 2 }} 
-                    onError={(e) => { 
-                      (e.target as HTMLImageElement).style.display = 'none'; 
-                    }}
-                  />
-                ) : null}
+                onClick={() => handleViewDetails(movie.imdbID)}
+                style={{ 
+                  position: 'relative', 
+                  width: '100%', 
+                  aspectRatio: '2/3', 
+                  background: '#1a1a1a', 
+                  display: 'flex', 
+                  justifyContent: 'center', 
+                  alignItems: 'center', 
+                  overflow: 'hidden', 
+                  cursor: 'pointer' 
+                }}>
+                  {movie.Poster && movie.Poster !== 'N/A' ? (
+                    <img 
+                      src={movie.Poster} 
+                      alt={movie.Title} 
+                      style={{ ...imageStyle, display: 'block', position: 'absolute', top: 0, left: 0, zIndex: 2 }} 
+                      onError={(e) => { 
+                        (e.target as HTMLImageElement).style.display = 'none'; 
+                      }}
+                    />
+                  ) : null}
 
-                <div style={{ textAlign: 'center', padding: '10px', zIndex: 1 }}>
-                  <span style={{ fontSize: '40px', display: 'block', marginBottom: '10px' }}>🎬</span>
-                  <p style={{ fontSize: '12px', color: '#666', fontWeight: 'bold', textTransform: 'uppercase' }}>
-                    Cartaz Indisponível
-                  </p>
+                <div style={{ 
+                  textAlign: 'center', 
+                  padding: '15px', 
+                  zIndex: 1, 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'center' 
+                  }}>
+                    <Clapperboard size={40} color="#E50914" style={{ marginBottom: '12px' }} />
+                    <p style={{ fontSize: '12px', color: '#666', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>
+                      Cartaz Indisponível
+                    </p>
                 </div>
               </div>
-
-              {/* INFORMAÇÕES E BOTÃO */}
               <div style={{ padding: '12px' }}>
                 <h3 style={titleStyle}>{movie.Title}</h3>
                 <p style={{ color: '#aaa', fontSize: '12px' }}>{movie.Year}</p>
@@ -451,7 +451,6 @@ const Home: React.FC = () => {
           ))}
         </div>
         ) : (
-          /* Mensagem caso o usuário ainda não tenha pesquisado nada */
           <div style={{ textAlign: 'center', padding: '40px', color: '#555', border: '1px dashed #333', borderRadius: '8px' }}>
             <p style={{ fontSize: '15px', margin: 0 }}>
               Digite o nome de um filme na barra de busca acima para explorar o catálogo da OMDb.
@@ -461,12 +460,10 @@ const Home: React.FC = () => {
       </section>
       )}
 
-      {/* MODAL DE CADASTRO/EDIÇÃO (CRUD) */}
       {isModalOpen && (
         <AddMovieModal onAdd={handleSaveMovie} onClose={closeModal} movieToEdit={movieToEdit} />
       )}
 
-      {/* MODAL DE DETALHES COMPLETOS (SINOPSE) */}
       {selectedMovie && (
         <div style={modalOverlayStyle} onClick={() => setSelectedMovie(null)}>
           <div style={detailsModalStyle} onClick={e => e.stopPropagation()}>
@@ -478,8 +475,10 @@ const Home: React.FC = () => {
                   <img src={selectedMovie.Poster} alt={selectedMovie.Title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
                   <div style={{ textAlign: 'center', padding: '10px' }}>
-                    <span style={{ fontSize: '40px', display: 'block', marginBottom: '10px' }}>🎬</span>
-                    <p style={{ fontSize: '12px', color: '#666', fontWeight: 'bold' }}>SEM CARTAZ</p>
+                    <Clapperboard size={40} color="#E50914" style={{ marginBottom: '12px' }} />
+                    <p style={{ fontSize: '12px', color: '#666', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>
+                      Cartaz Indisponível
+                    </p>
                   </div>
                 )}
               </div>
@@ -496,8 +495,17 @@ const Home: React.FC = () => {
                   <strong>Elenco:</strong> {selectedMovie.Actors && selectedMovie.Actors !== 'N/A' ? selectedMovie.Actors : 'Informação indisponível.'}
                 </p>
                 {selectedMovie.imdbRating && (
-                  <p style={{ marginTop: '10px', color: '#f1c40f', fontSize: '14px' }}>
-                    <strong>Nota IMDb:</strong> ⭐ {selectedMovie.imdbRating}
+                  <p style={{ 
+                      marginTop: '10px', 
+                      color: '#f1c40f',
+                      fontSize: '14px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px'
+                    }}>
+                      <strong>Nota IMDb:</strong> 
+                      <Star size={16} color="#f1c40f" fill="#f1c40f" /> 
+                      <span>{selectedMovie.imdbRating}</span>
                   </p>
                 )}
               </div>
@@ -509,10 +517,25 @@ const Home: React.FC = () => {
   );
 };
 
-// --- ESTILOS (Alinhados com as metas de Design e Responsividade) ---
-const containerStyle: React.CSSProperties = { padding: '20px', maxWidth: '1200px', margin: '0 auto', minHeight: '100vh' };
-const headerStyle: React.CSSProperties = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px', flexWrap: 'wrap', gap: '20px' };
-const gridStyle: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '25px' };
+const containerStyle: React.CSSProperties = { 
+  padding: '20px', 
+  maxWidth: '1200px', 
+  margin: '0 auto', 
+  minHeight: '100vh' 
+};
+const headerStyle: React.CSSProperties = { 
+  display: 'flex', 
+  justifyContent: 'space-between', 
+  alignItems: 'center', 
+  marginBottom: '40px', 
+  flexWrap: 'wrap', 
+  gap: '20px' 
+};
+const gridStyle: React.CSSProperties = { 
+  display: 'grid', 
+  gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', 
+  gap: '25px' 
+};
 const cardStyle: React.CSSProperties = {
   background: '#1a1a1a',
   borderRadius: '12px',
@@ -544,9 +567,26 @@ const imageStyle: React.CSSProperties = {
   backgroundColor: '#000'
 };
 
-const titleStyle: React.CSSProperties = { fontSize: '16px', color: 'white', margin: '8px 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' };
-const actionsStyle: React.CSSProperties = { display: 'flex', gap: '8px', marginTop: '12px' };
-const centerStyle: React.CSSProperties = { color: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' };
+const titleStyle: React.CSSProperties = { 
+  fontSize: '16px', 
+  color: 'white', 
+  margin: '8px 0', 
+  whiteSpace: 'nowrap', 
+  overflow: 'hidden', 
+  textOverflow: 'ellipsis' 
+};
+const actionsStyle: React.CSSProperties = { 
+  display: 'flex', 
+  gap: '8px', 
+  marginTop: '12px' 
+};
+const centerStyle: React.CSSProperties = { 
+  color: 'white', 
+  display: 'flex', 
+  justifyContent: 'center', 
+  alignItems: 'center', 
+  height: '100vh' 
+};
 
 const searchInputStyle = {
   flex: 1,
@@ -559,9 +599,33 @@ const searchInputStyle = {
   outline: 'none'
 };
 
-const logoutButtonStyle = { padding: '10px', background: 'transparent', color: '#ccc', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer' };
-const editButtonStyle = { flex: 1, padding: '6px', background: '#333', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' };
-const deleteButtonStyle = { flex: 1, padding: '6px', background: 'transparent', color: '#ff4d4d', border: '1px solid #ff4d4d', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' };
+const logoutButtonStyle = { padding: '10px', 
+  background: 'transparent', 
+  color: '#ccc', 
+  border: '1px solid #ccc', 
+  borderRadius: '4px',
+  cursor: 'pointer' 
+};
+const editButtonStyle = { 
+  flex: 1, 
+  padding: '6px', 
+  background: '#333', 
+  color: 'white', 
+  border: 'none', 
+  borderRadius: '4px', 
+  cursor: 'pointer', 
+  fontSize: '12px' 
+};
+const deleteButtonStyle = { 
+  flex: 1, 
+  padding: '6px', 
+  background: 'transparent', 
+  color: '#ff4d4d', 
+  border: '1px solid #ff4d4d', 
+  borderRadius: '4px', 
+  cursor: 'pointer', 
+  fontSize: '12px' 
+};
 
 const sectionTitleStyle: React.CSSProperties = {
   color: '#fff',
@@ -586,7 +650,6 @@ const importButtonStyle = {
   transition: 'all 0.2s'
 };
 
-// ESTILOS ADICIONADOS PARA O MODAL DE DETALHES
 const modalOverlayStyle: React.CSSProperties = {
   position: 'fixed',
   top: 0,
